@@ -32,17 +32,8 @@ class DataLoad:
 
     def eda(self):
         print(self.data.describe(include="all"))
-    """
-    def detect_anomalies(self, col=None):
-        # If a column is specified, use only that column; otherwise, use all columns
-        columns_to_plot = [col] if col is not None else self.data.columns
 
-        for c in columns_to_plot:
-            plt.figure(figsize=(6, 4))
-            sns.boxplot(x=self.data[c])
-            plt.title(f"Boxplot of {c}")
-            plt.show()
-    """
+
     def detect_anomalies(self, col=None):
         if col:
             cols = [col]
