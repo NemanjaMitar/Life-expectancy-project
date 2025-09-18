@@ -4,10 +4,10 @@ from sklearn.model_selection import train_test_split
 
 
 class Model:
-    def __init__(self,data):
+    def __init__(self, data):
         self.data = data.data 
 
-    def random_forest(self):
+    def train_random_forest(self):
         # Drop non-numeric or irrelevant columns
         exclude_cols = ['Life expectancy', 'Year']  # exclude target and categorical columns for now
         X = self.data.drop(columns=exclude_cols)
