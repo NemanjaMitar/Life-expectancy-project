@@ -1,0 +1,3 @@
+--  Odraditi poredjenje performasni za razlicite modele
+--  Dodati fokus na parametre naznacene u textu poput BMI, HIV ...
+--  Preformulisati funkcije, dodati komentare, ulepsati generalni izgled koda
