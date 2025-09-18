@@ -37,6 +37,6 @@ if __name__ == "__main__":
 
     # Treniranje Modela 
     model = Model(data)
-    model.random_forest()
+    model.train_random_forest()
 
 
