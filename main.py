@@ -2,41 +2,42 @@ from data_load import DataLoad
 from eda import EDA
 from model import Model
 import warnings
+import pandas as pd
+
 # https://drive.google.com/drive/folders/1nE4-ZytyNWDtDTjSC1YEmZZi4TpvH2ac
 
 warnings.filterwarnings('ignore', category=FutureWarning)
 
-if __name__ == "__main__":   
-    # Ucitavanja podataka iz dataseta
-    data = DataLoad('data.csv')
-
-    # Kolone 
-    # print(data.columns())
-
-    # Vizuelno detektovanje anomalija i outliera
-    # data.detect_anomalies('Year')
-    # Obratiti posebnu paznju na one iz pod iz teksta
+if __name__ == "__main__":
+    # Ucitavanje
+    loader = DataLoad("data.csv")
+    df = loader.get_data()
 
     # EDA
-    eda = EDA(data)
+    eda = EDA(df)
     eda.check_missing_values()
     eda.impute_numeric()
-    eda.check_missing_values()
-    
-    # Onehot encoding 
+    eda.print_duplicate_info()
     eda.one_hot_encoding()
     eda.handle_anomalies()
+    eda.weight_pondering(['Hepatitis B', 'Polio', 'Diphtheria'], 1.5)
+    
+    # Drop nepotrebnih kolona
+    df = eda.data.drop(columns=["Country"], errors="ignore")
 
+    # Export
+    loader.data = df   # update da DataLoad ima najnoviju verziju
+    loader.export_data("output.csv")
 
-    # Kolona Country nam sigurno nece biti ni od kakvog znacaja tako da mozemo da je izostavimo iz razmatranja
-    # Zakomplikovace nam zivot jer ima 193 zemlje u razmatranju 💀
+    # Model
+    model = Model(df)
 
-    data.drop('Country')
-    data.export_data('output.csv')
+    # Model 1 - los DecisionTree
+    model.train_bad_model()
 
-
-    # Treniranje Modela 
-    model = Model(data)
+    # Model 2 - Random Forest
     model.train_random_forest()
 
-
+    # Model 3 Gradient Boosting
+    #
+    model.train_gradient_boosting()

@@ -3,63 +3,52 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 class DataLoad:
-    def __init__(self, filePath=None):
-        try:
-            if not filePath:  # empty or None
-                raise ValueError("No file path provided.")
+    def __init__(self, file_path=None):
+        self.data = None
+        if file_path:
+            try:
+                self.data = pd.read_csv(file_path)
+                print(f"Uspesno ucitan dataset iz {file_path}")
+            except FileNotFoundError:
+                print(f"Dataset '{file_path}' nije pronadjen")
+            except Exception as e:
+                print(f"Error tokom citanja dataseta: {e}")
+        else:
+            print("Nije prosleđen put do fajla.")
 
-            # Try reading the CSV
-            self.data = pd.read_csv(filePath)
-            print(f"Uspesno ucitan dataset iz {filePath}")
+    def get_data(self):
+        return self.data
 
-        except FileNotFoundError:
-            print(f"Dataset '{filePath}' nije pronadjen")
-            self.data = None
-
-        except ValueError as ve:
-            print(f"{ve}")
-            self.data = None
-
-        except Exception as e:
-            # Svi ostali errori
-            print(f"Error tokom citanja dataseta: {e}")
-            self.data = None
-    
-    def columns(self,quantity = None):
-        if quantity:
-            return self.data.columns[:quantity]
-        return self.data.columns
+    def columns(self, quantity=None):
+        return self.data.columns[:quantity] if quantity else self.data.columns
 
     def eda(self):
         print(self.data.describe(include="all"))
 
-
     def detect_anomalies(self, col=None):
-        if col:
-            cols = [col]
-        else:
-            # Detect for all numeric columns
-            cols = self.data.select_dtypes(include='number').columns
+        if self.data is None:
+            print("Data nije ucitana.")
+            return
 
-        for col in cols:
+        cols = [col] if col else self.data.select_dtypes(include="number").columns
+
+        for c in cols:
             plt.figure(figsize=(6, 4))
-            sns.boxplot(x=self.data[col])
-            plt.title(f"Boxplot of {col}")
+            sns.boxplot(x=self.data[c])
+            plt.title(f"Boxplot of {c}")
             plt.show()
-            
+
     def drop(self, col):
         if col in self.data.columns:
             self.data.drop([col], axis=1, inplace=True)
-        else:
-            print(f"Column '{col}' does not exist.")
 
-    def export_data(self, file_path='output.csv', file_type='csv'):
-        if file_type == 'csv':
-            self.data.to_csv(file_path, index=False)
-        elif file_type == 'excel':
-            self.data.to_excel(file_path, index=False)
-        elif file_type == 'json':
-            self.data.to_json(file_path)
-        else:
-            print(f"Unsupported file type: {file_type}")
-        print(f"Data exported to {file_path}")
+    def export_data(self, file_path="output.csv", file_type="csv"):
+        try:
+            if file_type == "csv":
+                self.data.to_csv(file_path, index=False)
+            else:
+                print(f"Nepodržan tip fajla: {file_type}")
+                return
+            print(f"Data eksportovan u {file_path}")
+        except Exception as e:
+            print(f"Error prilikom eksportovanja: {e}")
