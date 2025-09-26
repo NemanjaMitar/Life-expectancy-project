@@ -7,4 +7,4 @@ NAPOMENE:
 Detekcija i uklanjanje duplikata - pronalaženje i eliminisanje ponovl-
 jenih da bi se izbegao overfitting. 
 
-U nasem slucaju nece postojati duplikati
+U nasem slucaju nece postojati duplia
