@@ -11,8 +11,11 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 if __name__ == "__main__":
     # Ucitavanje
     loader = DataLoad("data.csv")
-    df = loader.get_data()
-
+    # df = loader.get_data()
+    print(loader.columns())
+    # loader.detect_anomalies()
+    # loader.eda()
+"""
     # EDA
     eda = EDA(df)
     eda.check_missing_values()
@@ -41,3 +44,4 @@ if __name__ == "__main__":
     # Model 3 Gradient Boosting
     #
     model.train_gradient_boosting()
+"""
