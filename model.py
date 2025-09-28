@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import numpy as np
 
@@ -13,35 +13,20 @@ class Model:
         self.X = None
         self.y = None
 
-    # -----------------------------
-    # PRIPREMA PODATAKA
-    # -----------------------------
-    def prepare_data(self, target='Life expectancy', features=None, exclude_cols=None, test_size=0.2, random_state=42):
-        if exclude_cols is None:
-            exclude_cols = []
-        exclude_cols = set(exclude_cols) | {target}
-
-        if features is None:
-            # sve numeričke osim targeta i exclude_cols
-            self.X = self.df.select_dtypes(include=np.number).drop(columns=exclude_cols, errors='ignore')
-        else:
-            self.X = self.df[features]
-
+    def prepare_data(self, target='Life expectancy', test_size=0.3, random_state=42):
+        # Odabir svih numeričkih kolona osim target
+        self.X = self.df.select_dtypes(include=np.number).drop(columns=[target], errors='ignore')
         self.y = self.df[target]
         return train_test_split(self.X, self.y, test_size=test_size, random_state=random_state)
 
-    # -----------------------------
-    # GRID SEARCH
-    # -----------------------------
+    # Grid search - vraca najbolju kombinaciju parametara prosledjenu prilikom obucavanja
     def grid_search(self, model, param_grid, X_train, y_train, scoring='r2', cv=5):
-        grid = GridSearchCV(model, param_grid, cv=cv, scoring=scoring, n_jobs=-1, verbose=2)
+        grid = GridSearchCV(model, param_grid, cv=cv)
         grid.fit(X_train, y_train)
         print("Najbolji parametri:", grid.best_params_)
         return grid.best_estimator_
 
-    # -----------------------------
-    # CROSS VALIDATION
-    # -----------------------------
+    # Cross validation -  poredi R2 score na osnovu podele test skupa, delimo na 5 foldova sa razlicitim podacima
     def cross_validation(self, model, X=None, y=None, cv=5, scoring='r2'):
         if X is None or y is None:
             X, y = self.X, self.y
@@ -50,25 +35,7 @@ class Model:
         print(f"Prosek R2: {np.mean(scores):.3f}")
         return scores
 
-    # -----------------------------
-    # FEATURE IMPORTANCE
-    # -----------------------------
-    def plot_feature_importance(self, model, top_n=10):
-        if hasattr(model, 'feature_importances_'):
-            importances = pd.Series(model.feature_importances_, index=self.X.columns)
-            importances = importances.sort_values(ascending=False).head(top_n)
-            plt.figure(figsize=(8,6))
-            sns.barplot(x=importances.values, y=importances.index)
-            plt.title(f"Top {top_n} feature importance")
-            plt.show()
-            return importances
-        else:
-            print("Model nema attribute 'feature_importances_'")
-            return None
-
-    # -----------------------------
-    # EVALUACIJA MODELA
-    # -----------------------------
+    # Racuna MSE, MAE, R2 za svaki model koji cemo proslediti i plotuje predikciju u odnosu na stvarne vrednosti
     def evaluate_model(self, model, X_test, y_test):
         y_pred = model.predict(X_test)
         mse = mean_squared_error(y_test, y_pred)
@@ -76,7 +43,6 @@ class Model:
         r2 = r2_score(y_test, y_pred)
         print(f"MSE: {mse:.3f}, MAE: {mae:.3f}, R2: {r2:.3f}")
 
-        # plot reziduala
         plt.figure(figsize=(6,4))
         sns.scatterplot(x=y_test, y=y_pred)
         plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
@@ -84,50 +50,56 @@ class Model:
         plt.ylabel("Predictions")
         plt.title("Predictions vs True Values")
         plt.show()
-
         return mse, mae, r2
 
-    # -----------------------------
-    # TRENING RANDOM FOREST
-    # -----------------------------
-    def train_random_forest(self, features=None):
-        X_train, X_test, y_train, y_test = self.prepare_data(features=features, exclude_cols=['Year'])
+
+    def train_LR(self): 
+        X_train, X_test, y_train, y_test = self.prepare_data()
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+        self.evaluate_model(model, X_test, y_test)
+        return model
+    # LASSO REGRESIJA
+    def train_lasso(self):
+        X_train, X_test, y_train, y_test = self.prepare_data()
+        param_grid = {"alpha": [0.001, 0.01, 0.1, 1, 10, 100]}
+        lasso = Lasso(random_state=0, max_iter=10000)
+        najbolji_model = self.grid_search(lasso, param_grid, X_train, y_train)
+        self.evaluate_model(najbolji_model, X_test, y_test)
+        self.cross_validation(najbolji_model)
+        return najbolji_model
+
+
+    # RIDGE REGRESIJA
+    def train_ridge(self):
+        X_train, X_test, y_train, y_test = self.prepare_data()
+        param_grid = {"alpha": [0.001, 0.01, 0.1, 1, 10, 100]}
+        ridge = Ridge(random_state=0, max_iter=10000)
+        najbolji_model = self.grid_search(ridge, param_grid, X_train, y_train)
+        self.evaluate_model(najbolji_model, X_test, y_test)
+        self.cross_validation(najbolji_model)
+        return najbolji_model
+
+    # Random Forest regresija
+    def train_random_forest(self):
+        X_train, X_test, y_train, y_test = self.prepare_data()
         param_grid = {
-            "n_estimators": [500, 1000, 2000],
-            "max_depth": [None, 10, 20, 30],
-            "max_features": ["sqrt", "log2"]
+            "n_estimators": [100, 200],
+            "max_depth": [None, 5, 10, 20]
+            #"min_samples_split": [2, 5, 10],
+            #"min_samples_leaf": [1, 2, 4]
         }
         rf = RandomForestRegressor(random_state=0)
-        best_model = self.grid_search(rf, param_grid, X_train, y_train)
-        self.evaluate_model(best_model, X_test, y_test)
-        self.cross_validation(best_model)
-        self.plot_feature_importance(best_model)
-        return best_model
+        najbolji_model = self.grid_search(rf, param_grid, X_train, y_train)
+        self.evaluate_model(najbolji_model, X_test, y_test)
+        self.cross_validation(najbolji_model, X_train, y_train)
 
-    # -----------------------------
-    # TRENING GRADIENT BOOSTING
-    # -----------------------------
-    def train_gradient_boosting(self, features=None):
-        X_train, X_test, y_train, y_test = self.prepare_data(features=features, exclude_cols=['Year'])
-        param_grid = {
-            "n_estimators": [100, 300, 500],
-            "learning_rate": [0.01, 0.05, 0.1],
-            "max_depth": [3, 5, 7]
-        }
-        gb = GradientBoostingRegressor(random_state=0)
-        best_model = self.grid_search(gb, param_grid, X_train, y_train)
-        self.evaluate_model(best_model, X_test, y_test)
-        self.cross_validation(best_model)
-        self.plot_feature_importance(best_model)
-        return best_model
+        # Bonus - plottujemo najbitnije feature za RF
+        importances = pd.Series(najbolji_model.feature_importances_, index=self.X.columns)
+        importances = importances.sort_values(ascending=False)
+        plt.figure(figsize=(8,6))
+        sns.barplot(x=importances.values[:10], y=importances.index[:10])
+        plt.title("Top 10 Feature Importances")
+        plt.show()
 
-    # -----------------------------
-    # NAMERNO LOŠ MODEL
-    # -----------------------------
-    def train_bad_model(self, features=None):
-        X_train, X_test, y_train, y_test = self.prepare_data(features=features, exclude_cols=['Year'])
-        bad_tree = DecisionTreeRegressor(max_depth=1, min_samples_split=2000, random_state=0)
-        bad_tree.fit(X_train, y_train)
-        self.evaluate_model(bad_tree, X_test, y_test)
-        self.cross_validation(bad_tree)
-        return bad_tree
+        return najbolji_model

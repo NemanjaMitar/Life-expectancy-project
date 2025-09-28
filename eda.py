@@ -77,23 +77,31 @@ class EDA:
         y_cols = [col for col in numeric_cols if col not in exclude_cols]
 
         for country, group in self.data.groupby('Country'):
-            group = group.copy()
+            group = group.copy() # Posto baratamo sa dataset-om u svakoj it. moramo kopiju napraviti
             X = group[[x_col]].values
+            
+            # nedovoljno podataka za fittovanje (realno nikada nece biti nedovoljno)
             if X.shape[0] < 2:
-                continue  # not enough data to fit
+                continue  
 
             for y_col in y_cols:
                 Y = group[y_col].values
-                # skip columns with insufficient valid data
+                     # nedovoljno podataka za pred (realno nikada nece biti nedovoljno)
                 if np.sum(~np.isnan(Y)) < 2:
                     continue
 
                 model = LinearRegression()
-                # Only use valid rows
+                # Linearni model koristi samo validne redove
+
                 mask = ~np.isnan(X.flatten()) & ~np.isnan(Y)
+
                 if np.sum(mask) < 2:
                     continue
+
                 model.fit(X[mask], Y[mask])
+
+
+
                 preds = model.predict(X)
                 residuals = Y - preds
                 z_scores = (residuals - np.nanmean(residuals)) / (np.nanstd(residuals) + 1e-8)

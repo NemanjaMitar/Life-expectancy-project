@@ -4,17 +4,8 @@ import seaborn as sns
 
 class DataLoad:
     def __init__(self, file_path=None):
-        self.data = None
-        if file_path:
-            try:
-                self.data = pd.read_csv(file_path)
-                print(f"Uspesno ucitan dataset iz {file_path}")
-            except FileNotFoundError:
-                print(f"Dataset '{file_path}' nije pronadjen")
-            except Exception as e:
-                print(f"Error tokom citanja dataseta: {e}")
-        else:
-            print("Nije prosleđen put do fajla.")
+        self.data = pd.read_csv(file_path) if file_path else None
+        print(f"Uspesno ucitan dataset iz {file_path}")
 
     def get_data(self):
         return self.data
@@ -26,6 +17,7 @@ class DataLoad:
         print(self.data.describe(include="all"))
 
     def detect_anomalies(self, col=None):
+        # Eventualno ako je nesto poslo po zlu
         if self.data is None:
             print("Data nije ucitana.")
             return
@@ -42,13 +34,15 @@ class DataLoad:
         if col in self.data.columns:
             self.data.drop([col], axis=1, inplace=True)
 
-    def export_data(self, file_path="output.csv", file_type="csv"):
-        try:
-            if file_type == "csv":
-                self.data.to_csv(file_path, index=False)
-            else:
-                print(f"Nepodržan tip fajla: {file_type}")
-                return
-            print(f"Data eksportovan u {file_path}")
-        except Exception as e:
-            print(f"Error prilikom eksportovanja: {e}")
+    def export_data(self, file_path="output.csv"):
+        self.data.to_csv(file_path, index=False)
+
+    def histogram(self):
+        self.data.hist(bins = 30, color = 'g', figsize=(20,20))
+        plt.show()
+    
+    def heatmap(self):
+        plt.figure(figsize = (20,20))
+        corr_matrix = self.data.select_dtypes(include='number').corr()
+        sns.heatmap(corr_matrix, annot = True)
+        plt.show()
