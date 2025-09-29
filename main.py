@@ -13,7 +13,7 @@ if __name__ == "__main__":
     loader = DataLoad("data.csv")
     df = loader.get_data()
     print(loader.columns())
-    loader.detect_anomalies('GDP')
+    loader.detect_anomalies('infant deaths')
     loader.eda()
     loader.histogram()
     loader.heatmap()
@@ -38,13 +38,17 @@ if __name__ == "__main__":
     model = Model(df)
 
     # Treinarnje Linearne regresije
+    print("LR:")
     LR = model.train_LR()
 
     # Treniranje Lasso regresije
+    print("Lasso:")
     best_lasso = model.train_lasso()
 
     # Treniranje Ridge regresije
-
+    print("Ridge:")
     best_ridge = model.train_ridge()
+
+    print("RF: ")
     rf_model = model.train_random_forest()
     

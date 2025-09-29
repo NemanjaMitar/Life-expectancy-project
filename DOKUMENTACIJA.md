@@ -205,7 +205,7 @@ Nedostaci:
 - Ne hvata nelinearne odnose u podacima.  
 - Osetljiv je na outliere i multikolinearnost.  
 
-
+![alt text](images/LRizlaz.png)
 ### Lasso Regression
 
 Lasso (Least Absolute Shrinkage and Selection Operator) je linearan model sa **L1 regularizacijom**.  
@@ -219,7 +219,7 @@ Nedostaci:
 - Previše visoka vrednost alpha može eliminisati suviše informacija.  
 
 ![alt text](images/lasso.png)
-
+![alt text](images/lassoizlaz.png)
 ### Ridge Regression
 
 Ridge je linearni model sa **L2 regularizacijom**.  
@@ -234,6 +234,7 @@ Nedostaci:
 
 
 ![alt text](images/ridge.png)
+![alt text](images/Ridgeizlaz.png)
 ### Random Forest Regressor
 
 Random Forest je ensemble metoda zasnovana na velikom broju odlučujućih stabala.  
@@ -249,8 +250,15 @@ Nedostaci:
 - Teže se interpretira u poređenju sa linearnim modelima.  
 
 ![alt text](images/pf.png)
+![alt text](images/rfizlaz.png)
+
 
 Osim metrika **MSE**, **MAE** i **R²**, kod Random Forest modela je analizirana i **feature importance**, što daje uvid u najuticajnije faktore na životni vek.
 
 ![alt text](images/featureRF.png)
 
+### Zaključak
+
+Random Forest se pokazao kao najbolji model jer hvata nelinearne odnose i interakcije između atributa, što Linear Regression, Ridge i Lasso ne mogu u potpunosti da obrade. Pored toga, Random Forest je robusniji na outliere i ne zahteva stroge pretpostavke o podacima, pa prirodno daje bolje rezultate u ovakvim kompleksnim skupovima podataka.  
+
+S druge strane, Linear Regression i njegovi regularizovani oblici (Ridge i Lasso) daju gotovo iste rezultate jer vrednosti hiperparametra `alpha` u Grid Search-u nisu bile dovoljno velike da značajno utiču na koeficijente. Kada je `alpha` vrlo mala, penalizacija regularizacije je zanemarljiva, pa se modeli ponašaju skoro identično kao čista Linear Regression. To objašnjava zašto su svi njihovi rezultati praktično isti.  

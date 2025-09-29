@@ -20,8 +20,8 @@ class Model:
         return train_test_split(self.X, self.y, test_size=test_size, random_state=random_state)
 
     # Grid search - vraca najbolju kombinaciju parametara prosledjenu prilikom obucavanja
-    def grid_search(self, model, param_grid, X_train, y_train, scoring='r2', cv=5):
-        grid = GridSearchCV(model, param_grid, cv=cv)
+    def grid_search(self, model, param_grid, X_train, y_train, scoring='r2'):
+        grid = GridSearchCV(model, param_grid)
         grid.fit(X_train, y_train)
         print("Najbolji parametri:", grid.best_params_)
         return grid.best_estimator_
@@ -62,7 +62,7 @@ class Model:
     # LASSO REGRESIJA
     def train_lasso(self):
         X_train, X_test, y_train, y_test = self.prepare_data()
-        param_grid = {"alpha": [0.001, 0.01, 0.1, 1, 10, 100]}
+        param_grid = {"alpha": [0.1, 1, 10, 100]}
         lasso = Lasso(random_state=0, max_iter=10000)
         najbolji_model = self.grid_search(lasso, param_grid, X_train, y_train)
         self.evaluate_model(najbolji_model, X_test, y_test)
