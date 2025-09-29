@@ -235,6 +235,15 @@ Nedostaci:
 
 ![alt text](images/ridge.png)
 ![alt text](images/Ridgeizlaz.png)
+
+
+I kod Lasso regresije i kod Ridge regresije vidimo da se vrednosti izlaza ne razlikuju za mnogo u odnosu na Linearnu regresiju. To je zbog dva razloga:
+- Naš model je i dalje poprilično nelinearan, odnosno zavisnosti između feature-a su nelinearne, tako da je modelu jako teško da se izbori sa svim nepotrebnim featurima.
+- Za jako malo *alpha* naši modeli se ponašaju skoro kao obična Linearna regresija, tako da je odstupanje od tog rezultata malo.
+
+Takođe pri grid pretrazi se kod jednog modela iz skupa vrednosti alpha hiperparametara izbacila jako mala vrednost 0.001 čisto da bi se prikazala vrednost odziva za taj model.
+
+
 ### Random Forest Regressor
 
 Random Forest je ensemble metoda zasnovana na velikom broju odlučujućih stabala.  
@@ -257,6 +266,8 @@ Osim metrika **MSE**, **MAE** i **R²**, kod Random Forest modela je analizirana
 
 ![alt text](images/featureRF.png)
 
+
+Vidimo da je HIV ima daleko najznačajniji uticaj u odnosu na sve ostale feature, što smo donekle i očekivali.
 ### Zaključak
 
 Random Forest se pokazao kao najbolji model jer hvata nelinearne odnose i interakcije između atributa, što Linear Regression, Ridge i Lasso ne mogu u potpunosti da obrade. Pored toga, Random Forest je robusniji na outliere i ne zahteva stroge pretpostavke o podacima, pa prirodno daje bolje rezultate u ovakvim kompleksnim skupovima podataka.  

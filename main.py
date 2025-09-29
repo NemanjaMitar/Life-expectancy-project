@@ -25,7 +25,7 @@ if __name__ == "__main__":
     eda.print_duplicate_info()
     eda.one_hot_encoding()
     eda.handle_anomalies()
-    eda.weight_pondering(['Hepatitis B', 'Polio', 'Diphtheria'], 1.5)
+    eda.weight_pondering(['Hepatitis B', 'Polio', 'Diphtheria',"HIV/AIDS"], 1.5)
 
     # Drop nepotrebnih kolona, neke zbog logike neke zbog heatmape
     df = eda.data.drop(columns=["Country", "infant deaths", "GDP"], errors="ignore")
