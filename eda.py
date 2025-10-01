@@ -71,8 +71,9 @@ class EDA:
     def handle_anomalies(self, x_col='Life expectancy', z_thresh=3, exclude_cols=None):
         if exclude_cols is None:
             exclude_cols = []
-        exclude_cols = set(exclude_cols) | {x_col}
+        exclude_cols = set(exclude_cols) | {x_col} # Unija, imace bar x_col
 
+        # Od svih numerickih kolona uzimam one koje nisam izdvojio
         numeric_cols = self.data.select_dtypes(include=np.number).columns
         y_cols = [col for col in numeric_cols if col not in exclude_cols]
 
@@ -100,12 +101,13 @@ class EDA:
 
                 model.fit(X[mask], Y[mask])
 
-
-
                 preds = model.predict(X)
                 residuals = Y - preds
+                # z = (x – μ) / σ 
+                # standard score of how far from the mean a data point 
                 z_scores = (residuals - np.nanmean(residuals)) / (np.nanstd(residuals) + 1e-8)
                 anomalies = np.abs(z_scores) > z_thresh
                 if anomalies.any():
                     print(f"{country} - {y_col}: corrected {anomalies.sum()} anomalies using LR")
+                    # Azuriraj podatke tamo gde smo upotrebili Linearn Reg
                     self.data.loc[group.index[anomalies], y_col] = preds[anomalies]
