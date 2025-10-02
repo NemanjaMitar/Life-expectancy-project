@@ -13,7 +13,7 @@ if __name__ == "__main__":
     loader = DataLoad("data.csv")
     df = loader.get_data()
     print(loader.columns())
-    loader.detect_anomalies('infant deaths')
+    loader.detect_anomalies()
     loader.eda()
     loader.histogram()
     loader.heatmap()

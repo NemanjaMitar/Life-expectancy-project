@@ -20,7 +20,7 @@ class Model:
         return train_test_split(self.X, self.y, test_size=test_size, random_state=random_state)
 
     # Grid search - vraca najbolju kombinaciju parametara prosledjenu prilikom obucavanja
-    def grid_search(self, model, param_grid, X_train, y_train, scoring='r2'):
+    def grid_search(self, model, param_grid, X_train, y_train):
         grid = GridSearchCV(model, param_grid)
         grid.fit(X_train, y_train)
         print("Najbolji parametri:", grid.best_params_)
@@ -81,6 +81,7 @@ class Model:
         return najbolji_model
 
     # Random Forest regresija
+    # Kod regresije - koristi se srednja vrednost svih predikcija
     def train_random_forest(self):
         X_train, X_test, y_train, y_test = self.prepare_data()
         param_grid = {

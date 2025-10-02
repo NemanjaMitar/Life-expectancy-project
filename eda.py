@@ -93,7 +93,6 @@ class EDA:
 
                 model = LinearRegression()
                 # Linearni model koristi samo validne redove
-
                 mask = ~np.isnan(X.flatten()) & ~np.isnan(Y)
 
                 if np.sum(mask) < 2:
@@ -104,7 +103,7 @@ class EDA:
                 preds = model.predict(X)
                 residuals = Y - preds
                 # z = (x – μ) / σ 
-                # standard score of how far from the mean a data point 
+                # standard score of - KOLiko smo daleko od proseka
                 z_scores = (residuals - np.nanmean(residuals)) / (np.nanstd(residuals) + 1e-8)
                 anomalies = np.abs(z_scores) > z_thresh
                 if anomalies.any():
